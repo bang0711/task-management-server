@@ -18,7 +18,7 @@ export class TaskService {
 
     await this.prisma.task.create({
       data: {
-        title: createTaskDto.name,
+        title: createTaskDto.title,
         project: {
           connect: project,
         },
@@ -34,6 +34,9 @@ export class TaskService {
           id: projectId,
         },
       },
+      orderBy: {
+        createdTime: 'desc',
+      },
     });
     return { content: { tasks }, status: 200 };
   }
@@ -42,11 +45,39 @@ export class TaskService {
     return `This action returns a #${id} task`;
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return updateTaskDto;
+  async update(id: string, updateTaskDto: UpdateTaskDto) {
+    const task = await this.prisma.task.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!task) {
+      return { message: 'Task not found.', status: 404 };
+    }
+    await this.prisma.task.update({
+      where: {
+        id,
+      },
+      data: { ...updateTaskDto },
+    });
+
+    return { message: 'Task updated successfully.', status: 200 };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(id: string) {
+    const task = await this.prisma.task.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!task) {
+      return { message: 'Task not found.', status: 404 };
+    }
+    await this.prisma.task.delete({
+      where: {
+        id: id,
+      },
+    });
+    return { message: 'Task deleted.', status: 200 };
   }
 }

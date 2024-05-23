@@ -47,6 +47,9 @@ export class ProjectService {
           id: user.id,
         },
       },
+      orderBy: {
+        createdTime: 'desc',
+      },
     });
     return {
       content: {
